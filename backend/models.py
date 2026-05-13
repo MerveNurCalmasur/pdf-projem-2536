@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone,timedelta
-from database import Base # Az önce oluşturduğumuz dosyadan Base'i çağırıyoruz
+from backend.database import Base # Az önce oluşturduğumuz dosyadan Base'i çağırıyoruz
 TURKEY_TZ = timezone(timedelta(hours=3))
 def turkey_time():
     return datetime.now(TURKEY_TZ).replace(tzinfo=None)
