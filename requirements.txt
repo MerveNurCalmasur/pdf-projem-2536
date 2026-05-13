@@ -6,3 +6,4 @@ pypdf
 passlib[bcrypt]
 Pillow
 reportlab
+email-validator
