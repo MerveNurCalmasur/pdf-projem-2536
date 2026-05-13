@@ -9,6 +9,7 @@ from typing import List
 from datetime import datetime, date     #limit kontrol için
 import os
 import uuid
+import subprocess
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -372,7 +373,8 @@ async def convert_office(
                 "--outdir", "uploads", 
                 temp_path
             ]
-            
+            print(f"Mevcut dizin: {os.getcwd()}")
+            print(f"Dizin içeriği: {os.listdir('.')}")
             # Dönüştürmeyi başlat
             subprocess.run(command, check=True)
 

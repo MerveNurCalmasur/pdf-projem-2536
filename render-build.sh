@@ -14,5 +14,6 @@ cd /opt/render/project/src/libreoffice
 
 # Eğer daha önce indirilmediyse LibreOffice'i çek
 if [ ! -d "libreoffice" ]; then
+  echo "LibreOffice kuruluyor..."
   curl -L https://github.com/vsls-contrib/libreoffice-bin/raw/master/libreoffice.tar.gz | tar xz
 fi
