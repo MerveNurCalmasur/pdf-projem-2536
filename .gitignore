@@ -1,0 +1,15 @@
+# Python sanal ortam klasörü (Bunu asla yükleme!)
+.venv/
+__pycache__/
+*.pyc
+
+# Veritabanı (Hoca temiz halini görsün, senin testlerin gitmesin)
+*.db
+
+# Kullanıcıların yüklediği geçici dosyalar
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# İşletim sistemi kalıntıları
+.DS_Store
+Thumbs.db

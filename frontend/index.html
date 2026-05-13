@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--RESPONSİVE GÖRÜNÜM İÇİN--> 
+    <title>myPDF-2536  PDF Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Candara:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Candara', sans-serif;
+            background: #f4f6f9;
+            color: #222;
+        } 
+
+        nav {  /*navbar stili*/
+            background: #e99ed7;
+            padding: 16px 40px;
+            display: flex;  /*navbar daki elemanları yan yana dizer(logo ve butonlar)*/
+            justify-content: space-between; /*logoyu ve butonu iki ayrı uca yerleştirir*/
+            align-items: center;
+        } 
+
+        .logo {  /*myPDF2536 stili*/
+            color: rgb(120, 9, 83);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .logo span { color: #000000; }  /*logoda my kısmı farklı renk olacak*/
+
+        .nav-btns { display: flex; gap: 10px; }   /*butonları sarar ve yan yana dizer ve aralarına boşluk ekler*/
+
+        .nav-btn {  /*button style(signup ve login)*/
+            padding: 8px 18px; 
+            border-radius: 6px; /*buton köşelerini yuvarlak*/
+            font-size: 14px;
+            border: none;
+            font-family: 'Candara', sans-serif;
+        }
+
+        .btn-login { /*login button style*/
+            background: transparent;
+            border: 1px solid  rgb(120, 9, 83);
+            color: rgb(120, 9, 83);
+        }
+
+        .btn-signup { /*signup button style*/
+            background: transparent;
+            color: rgb(120, 9, 83);
+        }
+        
+        .nav-user { display: none; align-items: center; gap: 12px; } /*kullanıcı giriş yaptıkdan sonra görünen alan*/
+        .nav-user span { color: rgb(120, 9, 83); font-size: 14px; } /*kullanıcı adı yazısı*/
+        .btn-logout { /*çıkış butonu*/
+            background: transparent;
+            border: 1px solid #e73c3c;
+            color: #e74c3c;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .hero { /*başlık alanı style*/
+            text-align: center;
+            padding: 50px 20px 30px;
+        }
+
+        .hero h1 { font-size: 35px; color:  rgb(120, 9, 83); margin-bottom: 10px; }  /*ana başlık*/
+        .hero p { font-size: 15px; color: #666; }  /*açıklama yazısı*/
+
+        .admin-bar { /*admin butonu*/
+            text-align: center;
+            margin: 10px 0;
+            display: none;
+        }
+
+        .admin-link { /*admin panel butonu*/
+            display: inline-block; /*buton kendi içeriği kadar yer kaplar*/
+            padding: 8px 20px;
+            background: transparent ;
+            color: rgb(120, 9, 83);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+    
+        .tools { /*tools ları saran alan stili (RESPONSİVE GÖRÜNÜM İÇİN)*/
+            max-width: 900px;  /*max kart genişliği(kartlar max 900px genişler)*/
+            margin: 20px auto 60px;
+            padding: 0 20px;
+            display: grid;  /*yatay dikey kontrol için */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /*kart sütun düzeni için*/
+            gap: 20px;
+        }
+        .card { /*KART STİLİ*/
+            background: white;
+            border-radius: 10px;
+            padding: 24px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10); /*kart altına gölge ekler*/
+        }
+
+        .card h3 { /*kart başlığı stili*/
+            font-size: 16px;
+            margin-bottom: 6px;
+            color: #2c3e50;
+            display: flex; /*emoji ve başlık yan yana */
+            align-items: center;
+            gap: 8px; /*emoji ve boşluk arası mesafe*/
+        }
+        .card p { /*card açıklama yazısı stili*/
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .card input[type="file"] { /*dosya seçme alanı sadece file seçer*/
+            display: block;
+            width: 100%;
+            font-size: 13px;
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        .card input[type="text"] { /*fligran dirilen alan için*/
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            outline: none;
+            font-family: 'Candara"', sans-serif;
+        }
+        .card-btn { /*butonların ortak stilleri*/
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color:  #2c3e50;
+            font-family: 'Candara', sans-serif;
+        }
+
+        .btn-blue { background: #77c2f5; }
+        .btn-blue:hover { background: #2980b9; }
+        .btn-green { background: #ea79b9; }
+        .btn-green:hover { background: #f157ac; }
+        .btn-orange { background: #f6b378; }
+        .btn-orange:hover { background: #f59a4a; }
+        .btn-purple { background: #dfa2fa; }
+        .btn-purple:hover { background: #c869f1; }
+
+        .result { /*işlem sonucu gösterimi (sucsess,error,loading)*/
+            margin-top: 10px;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+        .result.success { background: #d5f5e3; color: #1e8449; display: block; }  
+        .result.error { background: #fadbd8; color: #c0392b; display: block; }
+        .result.loading { background: #d6eaf8; color: #2471a3; display: block; }
+
+        /* signup veya login e basınca olacaklar*/
+        .overlay { /*arka planı karartma*/
+            display: none;
+            position: fixed; /*sayfa kaydırılsada pencere ekranda sabit kalır*/
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100; /*sayfada herşeyin üstünde gözükür*/
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay.active { display: flex; } /*active class eklenince görünür hale getirir*/
+
+        .modal { /*açılan pencere stili */
+            background: white;
+            border-radius: 10px;
+            padding: 32px;
+            width: 100%;
+            max-width: 380px;
+            position: relative; /*x butonunu pencerenin içine ekler*/
+        }
+
+        .modal h2 { font-size: 20px; margin-bottom: 20px; color: #2c3e50; }/*pencerenin başlık stili*/
+
+        .modal-close { /*kapatma buton stili*/
+            position: absolute;
+            top: 12px; right: 16px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #888;
+        }
+        .tabs { /*penceredeki sekme çubuğu stilleri */
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: #f4f6f9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .tab { /*her sekme butonu için stil*/
+            flex: 1; /*her sekme eşit olur*/
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Candara', sans-serif;
+        }
+        .tab.active { background:  #2c3e50; color:  rgb(255, 255, 255); } /*seçilen sekme stili*/
+
+        .form-group { margin-bottom: 14px; } /*her form alan arası boşluk  */
+        .form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; } /*label stili*/
+        .form-group input { /*input kutucuk*/
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Candara', sans-serif;
+        }
+        .form-group input:focus { border-color: #2c3e50; }
+
+        .form-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Candara', sans-serif;
+        }
+        .form-btn:hover { background: #212e3b; } 
+
+        .form-msg { /*login ve signup işlem sonuçlarını gösteren mesaj stili*/
+            margin-top: 10px;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+        .form-msg.success { background: #d5f5e3; color: #1e8449; display: block; }
+        .form-msg.error { background: #fadbd8; color: #c0392b; display: block; }
+    </style>
+</head>
+<body>
+<nav>  <!-- navbar bileşenleri -->
+    <div class="logo">my<span>PDF2536</span></div> <!-- logo yu üstteki stile göre uygular -->
+    <div class="nav-btns" id="navBtns">  <!--  login signup stillerini uygular -->
+        <button class="nav-btn btn-login" onclick="openModal('login')">Giriş Yap</button>   <!-- stilleri birlikte alır. -->
+        <button class="nav-btn btn-signup" onclick="openModal('register')">Kayıt Ol</button>
+    </div>
+    <div class="nav-user" id="navUser">  <!-- giriş sonrası alan -->
+        <span>👤 <b id="navUsername"></b></span>  <!-- kullanıcı adı -->
+        <button class="btn-logout" onclick="logout()">Çıkış</button> <!-- çıkış butonu -->
+    </div>
+</nav>
+
+<div class="hero">   <!-- başlık alanı -->
+    <h1>PDF Araçları</h1>
+    <p>Birleştir, dönüştür, filigran ekle. Hızlı ve ücretsiz.</p>
+</div>
+
+<div class="admin-bar" id="adminBar"> <!-- admin giriş butonu -->
+    <a href="admin.html" class="admin-link"> Admin Paneli</a>
+</div>
+
+<div class="tools"> <!-- tüm kartları saran kutular -->
+
+    <div class="card">
+        <h3>➕​ PDF Birleştir</h3>
+        <p>Birden fazla PDF'i tek dosyada birleştir. (Günlük 3 hak)</p>
+        <input type="file" id="mergeFiles" multiple accept=".pdf">
+        <button class="card-btn btn-blue" onclick="mergePdfs()">Birleştir</button>
+        <div class="result" id="mergeResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>🖼️ Resim → PDF</h3>
+        <p>JPG, PNG veya WEBP resimlerini PDF'e dönüştür. (Günlük 3 hak)</p>
+        <input type="file" id="convertFiles" multiple accept=".jpg,.jpeg,.png,.webp">
+        <button class="card-btn btn-green" onclick="convertImages()">Dönüştür</button>
+        <div class="result" id="convertResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>✒️ Filigran Ekle</h3>
+        <p>PDF'e özel metin filigranı ekle. (Günlük 3 hak)</p>
+        <input type="file" id="watermarkFile" accept=".pdf"> 
+        <input type="text" id="watermarkText" placeholder="Filigran metni (örn: AtaÜni)"> <!-- filigran metni eklemek için kutu -->
+        <button class="card-btn btn-orange" onclick="addWatermark()">Filigran Ekle</button>
+        <div class="result" id="watermarkResult"></div>
+    </div>
+
+    <div class="card">
+        <h3>📄 Word / PPT → PDF</h3>
+        <p>Word ve PowerPoint dosyalarını PDF'e dönüştür. (Günlük 3 hak)</p>
+        <input type="file" id="officeFile" accept=".docx,.pptx,.doc,.ppt">
+        <button class="card-btn btn-purple" onclick="convertOffice()">Dönüştür</button>
+        <div class="result" id="officeResult"></div>
+    </div>
+
+</div>
+
+<div class="overlay" id="authModal"> <!-- arka planı karartma -->
+    <div class="modal">   <!-- overlay ın ortasında duran form kutusu -->
+        <button class="modal-close" onclick="closeModal()">✕</button> <!-- kapatma butonu -->
+        <h2>Hesabına Giriş Yap</h2>
+
+        <div class="tabs">
+            <button class="tab active" id="tabLogin" onclick="switchTab('login')">Giriş Yap</button>
+            <button class="tab" id="tabRegister" onclick="switchTab('register')">Kayıt Ol</button>
+        </div>
+
+        <div id="loginForm"> <!--giriş formu-->
+            <div class="form-group">
+                <label>Kullanıcı Adı</label> 
+                <input type="text" id="loginUsername" placeholder="kullanici_adi">
+            </div>
+            <div class="form-group">
+                <label>Şifre</label>
+                <input type="password" id="loginPassword" placeholder="••••••">
+            </div>
+            <button class="form-btn" onclick="login()">Giriş Yap</button>
+            <div class="form-msg" id="loginMsg"></div>
+        </div>
+
+        <div id="registerForm" style="display:none">
+            <div class="form-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" id="regUsername" placeholder="kullanici_adi">
+            </div>
+            <div class="form-group">
+                <label>E-posta</label>
+                <input type="email" id="regEmail" placeholder="ornek@email.com">
+            </div>
+            <div class="form-group">
+                <label>Şifre (en az 6 karakter)</label>
+                <input type="password" id="regPassword" placeholder="••••••">
+            </div>
+            <button class="form-btn" onclick="register()">Kayıt Ol</button>
+            <div class="form-msg" id="registerMsg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "http://127.0.0.1:8000"; //backend adresi,istekler bu adrese gidecek
+    let currentUser = null; //giriş yapan kullanıcıyı tutar
+
+    function openModal(tab) {  
+        document.getElementById('authModal').classList.add('active');
+        switchTab(tab);
+    }
+
+    function closeModal() {
+        document.getElementById('authModal').classList.remove('active');
+    }
+
+    function switchTab(tab) { //sekme değiştirmek için*/
+        document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+        document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+        document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    }
+
+    async function login() { //async backend den cevap gelene kadar bekler
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const msg = document.getElementById('loginMsg');
+        if (!username || !password) { showMsg(msg, 'error', 'Tüm alanları doldurun!'); return; }
+        try { //backend e istek atar(yapay zeka yardımı var)
+            const res = await fetch(`${API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }) 
+            });
+            const data = await res.json();
+            if (res.ok) { 
+                currentUser = { username: data.kullanici, role: data.rol };
+                showMsg(msg, 'success', 'Giriş başarılı!');
+                setTimeout(() => { closeModal(); updateNav(); }, 1000);
+            } else {
+                showMsg(msg, 'error', data.detail || 'Hata oluştu!');
+            }
+        } catch(e) { showMsg(msg, 'error', 'Bağlantı hatası!'); }
+    }
+    async function register() {
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const msg = document.getElementById('registerMsg');
+        if (!username || !email || !password) { showMsg(msg, 'error', 'Tüm alanları doldurun!'); return; }
+        try {
+            const res = await fetch(`${API}/signup`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                showMsg(msg, 'success', 'Kayıt başarılı! Giriş yapabilirsiniz.');
+                setTimeout(() => switchTab('login'), 1500);
+            } else {
+                showMsg(msg, 'error', data.detail || 'Hata oluştu!');
+            }
+        } catch(e) { showMsg(msg, 'error', 'Bağlantı hatası!'); }
+    }
+
+    function logout() { currentUser = null; updateNav(); } //çıkış fonksiyonu
+
+    function updateNav() { //kullanıcıdan sonra navbar güncellenir
+        document.getElementById('navBtns').style.display = currentUser ? 'none' : 'flex';
+        document.getElementById('navUser').style.display = currentUser ? 'flex' : 'none';
+        document.getElementById('adminBar').style.display = (currentUser?.role === 'admin') ? 'block' : 'none';
+        if (currentUser) document.getElementById('navUsername').textContent = currentUser.username;
+    }
+
+    async function mergePdfs() {
+        const files = document.getElementById('mergeFiles').files; 
+        const result = document.getElementById('mergeResult');
+        if (files.length < 2) { showResult(result, 'error', '❌ En az 2 PDF seçin!'); return; }
+        const formData = new FormData(); //dosya göndermek içi özel paket
+        for (let f of files) formData.append('files', f);
+        if (currentUser) formData.append('username', currentUser.username);
+        showResult(result, 'loading', '⏳ Birleştiriliyor...');
+        await sendRequest(`${API}/merge`, formData, result, 'birlesik_dosya.pdf');
+    }
+
+    async function convertImages() {
+        const files = document.getElementById('convertFiles').files;
+        const result = document.getElementById('convertResult');
+        if (files.length < 1) { showResult(result, 'error', '❌ En az 1 resim seçin!'); return; }
+        const formData = new FormData(); //resimleri formdata ya ekler.
+        for (let f of files) formData.append('files', f);
+        if (currentUser) formData.append('username', currentUser.username);
+        showResult(result, 'loading', '⏳ Dönüştürülüyor...');
+        await sendRequest(`${API}/convert`, formData, result, 'donusturulmus.pdf');
+    }
+
+    async function addWatermark() {
+        const file = document.getElementById('watermarkFile').files[0]; //tek pdf seçilebilir.
+        const text = document.getElementById('watermarkText').value;
+        const result = document.getElementById('watermarkResult');
+        if (!file) { showResult(result, 'error', '❌ PDF seçin!'); return; }
+        if (!text) { showResult(result, 'error', '❌ Filigran metni girin!'); return; }
+        const formData = new FormData();
+        formData.append('file', file); //hem file ekleniyor
+        formData.append('text', text); //hem de fligran için text ekleniyor
+        if (currentUser) formData.append('username', currentUser.username);
+        showResult(result, 'loading', '⏳ Filigran ekleniyor...');
+        await sendRequest(`${API}/watermark`, formData, result, 'filigranli_dosya.pdf');
+    }
+    async function convertOffice() {
+        const file = document.getElementById('officeFile').files[0]; // tek bir dosya seçilir 
+        const result = document.getElementById('officeResult');
+        if (!file) { showResult(result, 'error', '❌ Dosya seçin!'); return; }
+        const formData = new FormData();
+        formData.append('file', file);
+        if (currentUser) formData.append('username', currentUser.username);
+        showResult(result, 'loading', '⏳ Dönüştürülüyor...');
+        await sendRequest(`${API}/convert-office`, formData, result, 'donusturulmus.pdf');
+    }
+
+    async function sendRequest(url, formData, resultEl, filename) {  //kod tekrarını önlemek için ortak kullanılan istek fonksiyonu
+        try {
+            const res = await fetch(url, { method: 'POST', body: formData });
+            if (res.ok) { 
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showResult(resultEl, 'success', '✅ Başarılı! İndirme başladı.');
+            } else {
+                const err = await res.json();
+                showResult(resultEl, 'error', '❌ ' + (err.detail || 'Hata!'));
+            }
+        } catch(e) {
+            showResult(resultEl, 'error', '❌ Bağlantı hatası!');
+        }
+    }
+
+    function showResult(el, type, msg) { el.className = 'result ' + type; el.textContent = msg; } 
+    function showMsg(el, type, msg) { el.className = 'form-msg ' + type; el.textContent = msg; }
+</script>
+</body>
+</html>
