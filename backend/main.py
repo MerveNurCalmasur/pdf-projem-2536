@@ -15,7 +15,6 @@ from reportlab.lib.pagesizes import letter
 import io
 from backend import models, schemas
 from backend.database import engine, SessionLocal , Base
-from docx2pdf import convert
 import tempfile
 import subprocess
 
@@ -362,29 +361,48 @@ async def convert_office(
     with open(temp_path, "wb") as f:
         f.write(await file.read())
 
-    try:
-        # 2. LibreOffice (soffice) Komutu - Render'da çalışacak olan kısım burası
-        command = [
-            "soffice", 
-            "--headless", 
-            "--convert-to", "pdf", 
-            "--outdir", "uploads", 
-            temp_path
-        ]
-        # Sunucuya komutu gönderiyoruz
-        subprocess.run(command, check=True)
+        try: # <--- TRY BLOĞU BURADAN BAŞLIYOR
+        # 2. LibreOffice (soffice) Yolu
+            soffice_path = "/opt/render/project/src/libreoffice/libreoffice/program/soffice"
+            
+            command = [
+                soffice_path,
+                "--headless", 
+                "--convert-to", "pdf", 
+                "--outdir", "uploads", 
+                temp_path
+            ]
+            
+            # Dönüştürmeyi başlat
+            subprocess.run(command, check=True)
 
-        # 3. Oluşan PDF dosyasının adını belirle
-        output_filename = temp_name.replace(ext, ".pdf")
-        output_path = os.path.join("uploads", output_filename)
+            # 3. PDF yolunu belirle
+            output_filename = temp_name.replace(ext, ".pdf")
+            output_path = os.path.join("uploads", output_filename)
 
-    except Exception as e:
-        # Hata olursa orijinal dosyayı temizle ve hata dön
-        if os.path.exists(temp_path): os.remove(temp_path)
-        raise HTTPException(status_code=500, detail=f"Dönüştürme hatası: {str(e)}")
-    
-    # Orijinal Word/PPT dosyasını iş bittikten sonra sil
-    if os.path.exists(temp_path): os.remove(temp_path)
+            # Orijinal dosyayı hemen sil
+            if os.path.exists(temp_path): 
+                os.remove(temp_path)
+
+            # 4. Veritabanına kaydet
+            new_action = models.UserAction(
+                action_type="convert-office",
+                ip_address=ip,
+                file_name=output_filename,
+                status="success",
+                user_id=user_id
+            )
+            db.add(new_action)
+            db.commit()
+
+            return FileResponse(path=output_path, filename="donusturulmus.pdf")
+
+        except Exception as e:
+            # Hata olursa temizlik yap
+            if os.path.exists(temp_path): 
+                os.remove(temp_path)
+            print(f"Dönüştürme Hatası: {str(e)}") # Loglara bakman için
+            raise HTTPException(status_code=500, detail=f"Dönüştürme hatası: {str(e)}")
 
     # 4. Veritabanına kaydet
     new_action = models.UserAction(

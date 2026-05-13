@@ -8,3 +8,4 @@ passlib[bcrypt]
 Pillow
 reportlab
 email-validator
+python-multipart
