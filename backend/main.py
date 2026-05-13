@@ -363,7 +363,7 @@ async def convert_office(
 
         try: # <--- TRY BLOĞU BURADAN BAŞLIYOR
         # 2. LibreOffice (soffice) Yolu
-            soffice_path = "/opt/render/project/src/libreoffice/libreoffice/program/soffice"
+            soffice_path = "/opt/render/project/src/libreoffice/program/soffice"
             
             command = [
                 soffice_path,
