@@ -13,8 +13,8 @@ from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import io
-import models, schemas
-from database import engine, SessionLocal
+from backend import models, schemas
+from backend.database import engine, SessionLocal
 from docx2pdf import convert
 import tempfile
 import subprocess
