@@ -14,7 +14,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import io
 from backend import models, schemas
-from backend.database import engine, SessionLocal
+from backend.database import engine, SessionLocal , Base
 from docx2pdf import convert
 import tempfile
 import subprocess
@@ -352,7 +352,7 @@ async def convert_office(
             user_id = user.id
     
     # Oran limitini kontrol et (Daha önce yazdığımız fonksiyon)
-    check_rate_limit(ip, db, user_id) 
+    limit_kontrol(ip, db, user_id) 
 
     # 1. Dosyayı geçici olarak uploads klasörüne kaydet
     ext = os.path.splitext(file.filename)[1].lower()
@@ -399,6 +399,46 @@ async def convert_office(
 
     return FileResponse(path=output_path, filename="donusturulmus.pdf")
 
+# kullanıcılar 
+@app.get("/admin/users", response_model=List[schemas.UserResponse])
+def tum_kullanicilar(db: Session = Depends(get_db)):
+    users = db.query(models.User).all()
+    return users
+
+
+# ADMIN — TÜM İŞLEMLER
+@app.get("/admin/islemler")
+def tum_islemler(db: Session = Depends(get_db)):
+    islemler = db.query(models.Operation).order_by(
+        models.Operation.timestamp.desc()
+    ).all()
+    
+    sonuc = []
+    for islem in islemler:
+        sonuc.append({
+            "id": islem.id,
+            "islem_turu": islem.operation_type,
+            "ip_adresi": islem.ip_address,
+            "dosya_adi": islem.file_name,
+            "durum": islem.status,
+            "tarih": islem.timestamp.strftime("%d.%m.%Y %H:%M") if islem.timestamp else None
+        })
+    return sonuc
+
+@app.post("/create-admin")
+def create_admin(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    sifre = user.password.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+    new_user = models.User(
+        username=user.username,
+        email=user.email,
+        hashed_password=pwd_context.hash(sifre),
+        role="admin"  # ✅ admin rolü
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {"mesaj": f"{user.username} admin olarak oluşturuldu!"}
+
 # ADMIN — İSTATİSTİK
 @app.get("/admin/istatistik")
 def istatistik(db: Session = Depends(get_db)):
@@ -425,7 +465,6 @@ def istatistik(db: Session = Depends(get_db)):
         "filigran": filigran,
         "toplam_kullanici": toplam_kullanici
     }
-
 # ADMIN — KULLANICI SİL
 @app.delete("/admin/kullanici/{kullanici_id}")
 def kullanici_sil(kullanici_id: int, db: Session = Depends(get_db)):
@@ -439,3 +478,4 @@ def kullanici_sil(kullanici_id: int, db: Session = Depends(get_db)):
     db.delete(kullanici)
     db.commit()
     return {"mesaj": f"{kullanici.username} silindi!"}
+

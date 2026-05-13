@@ -2,6 +2,9 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime,timezone,timedelta
 from backend.database import Base # Az önce oluşturduğumuz dosyadan Base'i çağırıyoruz
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from .database import Base # veya from backend.database import Base
+from datetime import datetime
 TURKEY_TZ = timezone(timedelta(hours=3))
 def turkey_time():
     return datetime.now(TURKEY_TZ).replace(tzinfo=None)
@@ -33,3 +36,5 @@ class Operation(Base):
     timestamp = Column(DateTime, default=turkey_time)
 
     owner = relationship("User", back_populates="operations")
+
+
