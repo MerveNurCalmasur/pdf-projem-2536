@@ -6,23 +6,23 @@
     <title>myPDF-2536  PDF Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Candara:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }/*sayfadaki her elamana verilen kuralları uygular*/
+                                                            /*tarayıcılardaki boşluklar sıfırlanır*/
         body {
             font-family: 'Candara', sans-serif;
             background: #f4f6f9;
             color: #222;
         } 
 
-        nav {  /*navbar stili*/
+        nav {    /*navbar stili*/
             background: #e99ed7;
             padding: 16px 40px;
-            display: flex;  /*navbar daki elemanları yan yana dizer(logo ve butonlar)*/
+            display: flex;      /*navbar daki elemanları yan yana dizer(logo ve butonlar)*/
             justify-content: space-between; /*logoyu ve butonu iki ayrı uca yerleştirir*/
             align-items: center;
         } 
 
-        .logo {  /*myPDF2536 stili*/
+        .logo {    /*myPDF2536 stili*/
             color: rgb(120, 9, 83);
             font-size: 22px;
             font-weight: 700;
@@ -32,7 +32,7 @@
 
         .nav-btns { display: flex; gap: 10px; }   /*butonları sarar ve yan yana dizer ve aralarına boşluk ekler*/
 
-        .nav-btn {  /*button style(signup ve login)*/
+        .nav-btn {     /*button style(signup ve login)*/
             padding: 8px 18px; 
             border-radius: 6px; /*buton köşelerini yuvarlak*/
             font-size: 14px;
@@ -40,13 +40,13 @@
             font-family: 'Candara', sans-serif;
         }
 
-        .btn-login { /*login button style*/
+        .btn-login {    /*login button style*/
             background: transparent;
             border: 1px solid  rgb(120, 9, 83);
             color: rgb(120, 9, 83);
         }
 
-        .btn-signup { /*signup button style*/
+        .btn-signup {    /*signup button style*/
             background: transparent;
             color: rgb(120, 9, 83);
         }
@@ -62,13 +62,13 @@
             font-size: 13px;
         }
         
-        .hero { /*başlık alanı style*/
+        .baslik_alani {    /*başlık alanı style*/
             text-align: center;
             padding: 50px 20px 30px;
         }
 
-        .hero h1 { font-size: 35px; color:  rgb(120, 9, 83); margin-bottom: 10px; }  /*ana başlık*/
-        .hero p { font-size: 15px; color: #666; }  /*açıklama yazısı*/
+        .baslik_alani h1 { font-size: 35px; color:  rgb(120, 9, 83); margin-bottom: 10px; }  /*ana başlık*/
+        .baslik_alani p { font-size: 15px; color: #666; }  /*açıklama yazısı*/
 
         .admin-bar { /*admin butonu*/
             text-align: center;
@@ -93,7 +93,7 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /*kart sütun düzeni için*/
             gap: 20px;
         }
-        .card { /*KART STİLİ*/
+        .islem_kart { /*KART STİLİ*/
             background: white;
             border-radius: 10px;
             padding: 24px;
@@ -101,7 +101,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.10); /*kart altına gölge ekler*/
         }
 
-        .card h3 { /*kart başlığı stili*/
+        .islem_kart h3 { /*kart başlığı stili*/
             font-size: 16px;
             margin-bottom: 6px;
             color: #2c3e50;
@@ -109,14 +109,14 @@
             align-items: center;
             gap: 8px; /*emoji ve boşluk arası mesafe*/
         }
-        .card p { /*card açıklama yazısı stili*/
+        .islem_kart p { /*islem_kart açıklama yazısı stili*/
             font-size: 13px;
             color: #888;
             margin-bottom: 16px;
             line-height: 1.5;
         }
 
-        .card input[type="file"] { /*dosya seçme alanı sadece file seçer*/
+        .islem_kart input[type="file"] { /*dosya seçme alanı sadece file seçer*/
             display: block;
             width: 100%;
             font-size: 13px;
@@ -124,7 +124,7 @@
             color: #555;
         }
 
-        .card input[type="text"] { /*fligran dirilen alan için*/
+        .islem_kart input[type="text"] { /*fligran dirilen alan için*/
             width: 100%;
             padding: 9px 12px;
             border: 1px solid #ddd;
@@ -134,7 +134,7 @@
             outline: none;
             font-family: 'Candara"', sans-serif;
         }
-        .card-btn { /*butonların ortak stilleri*/
+        .islem_kart-btn { /*butonların ortak stilleri*/
             width: 100%;
             padding: 10px;
             border: none;
@@ -155,7 +155,7 @@
         .btn-purple { background: #dfa2fa; }
         .btn-purple:hover { background: #c869f1; }
 
-        .result { /*işlem sonucu gösterimi (sucsess,error,loading)*/
+        .result {   /*işlem sonucu gösterimi (sucsess,error,loading)*/
             margin-top: 10px;
             font-size: 13px;
             padding: 8px 12px;
@@ -167,18 +167,18 @@
         .result.loading { background: #d6eaf8; color: #2471a3; display: block; }
 
         /* signup veya login e basınca olacaklar*/
-        .overlay { /*arka planı karartma*/
+        .arka_kararti {   /*arka planı karartma*/
             display: none;
             position: fixed; /*sayfa kaydırılsada pencere ekranda sabit kalır*/
             inset: 0;
             background: rgba(0,0,0,0.5);
-            z-index: 100; /*sayfada herşeyin üstünde gözükür*/
+            z-index: 100;   /*sayfada herşeyin üstünde gözükür*/
             align-items: center;
             justify-content: center;
         }
-        .overlay.active { display: flex; } /*active class eklenince görünür hale getirir*/
+        .arka_kararti.active { display: flex; } /*active class eklenince görünür hale getirir*/
 
-        .modal { /*açılan pencere stili */
+        .modal {    /*açılan pencere stili */
             background: white;
             border-radius: 10px;
             padding: 32px;
@@ -189,7 +189,7 @@
 
         .modal h2 { font-size: 20px; margin-bottom: 20px; color: #2c3e50; }/*pencerenin başlık stili*/
 
-        .modal-close { /*kapatma buton stili*/
+        .modal-close {   /*kapatma buton stili*/
             position: absolute;
             top: 12px; right: 16px;
             background: none;
@@ -198,7 +198,7 @@
             cursor: pointer;
             color: #888;
         }
-        .tabs { /*penceredeki sekme çubuğu stilleri */
+        .tabs {   /*penceredeki sekme çubuğu stilleri */
             display: flex;
             gap: 4px;
             margin-bottom: 20px;
@@ -207,7 +207,7 @@
             border-radius: 8px;
         }
 
-        .tab { /*her sekme butonu için stil*/
+        .tab {    /*her sekme butonu için stil*/
             flex: 1; /*her sekme eşit olur*/
             padding: 8px;
             border: none;
@@ -220,9 +220,9 @@
         }
         .tab.active { background:  #2c3e50; color:  rgb(255, 255, 255); } /*seçilen sekme stili*/
 
-        .form-group { margin-bottom: 14px; } /*her form alan arası boşluk  */
+        .form-group { margin-bottom: 14px; }  /*her form alan arası boşluk  */
         .form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 5px; } /*label stili*/
-        .form-group input { /*input kutucuk*/
+        .form-group input {  /*input kutucuk*/
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ddd;
@@ -246,8 +246,7 @@
             font-family: 'Candara', sans-serif;
         }
         .form-btn:hover { background: #212e3b; } 
-
-        .form-msg { /*login ve signup işlem sonuçlarını gösteren mesaj stili*/
+        .form-msg {   /*login ve signup işlem sonuçlarını gösteren mesaj stili*/
             margin-top: 10px;
             font-size: 13px;
             padding: 8px 12px;
@@ -259,7 +258,7 @@
     </style>
 </head>
 <body>
-<nav>  <!-- navbar bileşenleri -->
+<nav>   <!-- navbar bileşenleri -->
     <div class="logo">my<span>PDF2536</span></div> <!-- logo yu üstteki stile göre uygular -->
     <div class="nav-btns" id="navBtns">  <!--  login signup stillerini uygular -->
         <button class="nav-btn btn-login" onclick="openModal('login')">Giriş Yap</button>   <!-- stilleri birlikte alır. -->
@@ -271,7 +270,7 @@
     </div>
 </nav>
 
-<div class="hero">   <!-- başlık alanı -->
+<div class="baslik_alani">   <!-- başlık alanı -->
     <h1>PDF Araçları</h1>
     <p>Birleştir, dönüştür, filigran ekle. Hızlı ve ücretsiz.</p>
 </div>
@@ -282,43 +281,43 @@
 
 <div class="tools"> <!-- tüm kartları saran kutular -->
 
-    <div class="card">
+    <div class="islem_kart">
         <h3>➕​ PDF Birleştir</h3>
         <p>Birden fazla PDF'i tek dosyada birleştir. (Günlük 3 hak)</p>
         <input type="file" id="mergeFiles" multiple accept=".pdf">
-        <button class="card-btn btn-blue" onclick="mergePdfs()">Birleştir</button>
+        <button class="islem_kart-btn btn-blue" onclick="mergePdfs()">Birleştir</button>
         <div class="result" id="mergeResult"></div>
     </div>
 
-    <div class="card">
+    <div class="islem_kart">
         <h3>🖼️ Resim → PDF</h3>
         <p>JPG, PNG veya WEBP resimlerini PDF'e dönüştür. (Günlük 3 hak)</p>
         <input type="file" id="convertFiles" multiple accept=".jpg,.jpeg,.png,.webp">
-        <button class="card-btn btn-green" onclick="convertImages()">Dönüştür</button>
+        <button class="islem_kart-btn btn-green" onclick="convertImages()">Dönüştür</button>
         <div class="result" id="convertResult"></div>
     </div>
 
-    <div class="card">
+    <div class="islem_kart">
         <h3>✒️ Filigran Ekle</h3>
         <p>PDF'e özel metin filigranı ekle. (Günlük 3 hak)</p>
         <input type="file" id="watermarkFile" accept=".pdf"> 
         <input type="text" id="watermarkText" placeholder="Filigran metni (örn: AtaÜni)"> <!-- filigran metni eklemek için kutu -->
-        <button class="card-btn btn-orange" onclick="addWatermark()">Filigran Ekle</button>
+        <button class="islem_kart-btn btn-orange" onclick="addWatermark()">Filigran Ekle</button>
         <div class="result" id="watermarkResult"></div>
     </div>
 
-    <div class="card">
+    <div class="islem_kart">
         <h3>📄 Word / PPT → PDF</h3>
         <p>Word ve PowerPoint dosyalarını PDF'e dönüştür. (Günlük 3 hak)</p>
         <input type="file" id="officeFile" accept=".docx,.pptx,.doc,.ppt">
-        <button class="card-btn btn-purple" onclick="convertOffice()">Dönüştür</button>
+        <button class="islem_kart-btn btn-purple" onclick="convertOffice()">Dönüştür</button>
         <div class="result" id="officeResult"></div>
     </div>
 
 </div>
 
-<div class="overlay" id="authModal"> <!-- arka planı karartma -->
-    <div class="modal">   <!-- overlay ın ortasında duran form kutusu -->
+<div class="arka_kararti" id="authModal"> <!-- arka planı karartma -->
+    <div class="modal">   <!-- arka_kararti ın ortasında duran form kutusu -->
         <button class="modal-close" onclick="closeModal()">✕</button> <!-- kapatma butonu -->
         <h2>Hesabına Giriş Yap</h2>
 
@@ -360,7 +359,7 @@
 </div>
 
 <script>
-    const API = "http://127.0.0.1:8000"; //backend adresi,istekler bu adrese gidecek
+    const API = "https://pdf-backend-4kna.onrender.com"; //backend adresi,istekler bu adrese gidecek
     let currentUser = null; //giriş yapan kullanıcıyı tutar
 
     function openModal(tab) {  

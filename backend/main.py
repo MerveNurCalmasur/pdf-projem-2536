@@ -6,20 +6,17 @@ from sqlalchemy import func
 from pypdf import PdfWriter
 from passlib.context import CryptContext
 from typing import List
-from datetime import datetime, date     #limit kontrol için
+from datetime import datetime, date
 import os
 import uuid
-import subprocess
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import io
-from backend import models, schemas
-from backend.database import engine, SessionLocal , Base
+import models, schemas
+from database import engine, SessionLocal
+from docx2pdf import convert
 import tempfile
-import subprocess
-
-
 
 # Şifre hashleme 
 pwd_context = CryptContext(schemes=["bcrypt"])
@@ -46,11 +43,12 @@ def get_db():
     finally:
         db.close()
 
-def limit_kontrol(ip: str, db: Session,user_id: int=None):
-
+def limit_kontrol(ip: str, db: Session, user_id: int = None):
+    # Giriş yapmış kullanıcıysa sınırsız
     if user_id:
         return
     
+    # Misafir kullanıcıya günlük 3 hak
     bugun_baslangic = datetime.combine(date.today(), datetime.min.time())
     islem_sayisi = db.query(models.Operation).filter(
         models.Operation.ip_address == ip,
@@ -60,8 +58,9 @@ def limit_kontrol(ip: str, db: Session,user_id: int=None):
     if islem_sayisi >= 3:
         raise HTTPException(
             status_code=429,
-            detail="Günlük 3 işlem limitinizi doldurdunuz! Yarın tekrar deneyin."
+            detail="Günlük 3 işlem limitinizi doldurdunuz! Giriş yaparak sınırsız kullanabilirsiniz."
         )
+    
 # anasayfa
 @app.get("/")
 def ana_sayfa():
@@ -72,24 +71,28 @@ def ana_sayfa():
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
     # Email daha önce alınmış mı?
-    existing_email = db.query(models.User).filter( models.User.email == user.email).first() #veri tabanında daha önce bu e mail ile kayıt yapılmış mı bakar
+    existing_email = db.query(models.User).filter(
+        models.User.email == user.email
+    ).first()
     if existing_email:
-        raise HTTPException(status_code=400, detail="Bu email zaten kayıtlı!") #kayıt varsa hata verir.
+        raise HTTPException(status_code=400, detail="Bu email zaten kayıtlı!")
 
     # Kullanıcı adı daha önce alınmış mı?
-    existing_username = db.query(models.User).filter(models.User.username == user.username).first() #veritabanından kullanıcı adı ile daha önce kayıt olmuş mu bakar
+    existing_username = db.query(models.User).filter(
+        models.User.username == user.username
+    ).first()
     if existing_username:
-        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten alınmış!") #kayıt varsa hata verir.
+        raise HTTPException(status_code=400, detail="Bu kullanıcı adı zaten alınmış!")
 
     new_user = models.User(
         username=user.username,
         email=user.email,
-        hashed_password=pwd_context.hash(user.password),  # Hashli şifre(güvenli şifre)
+        hashed_password=pwd_context.hash(user.password[:72]),  # Hashli şifre
         role="member"
     )
-    db.add(new_user)  #listeye ekle
-    db.commit()       #değişiklikleri kaydet
-    db.refresh(new_user)     #veritabanından son halini geri al 
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
     return new_user
 
 # giriş yap
@@ -102,7 +105,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=404, detail="Kullanıcı bulunamadı!")
 
-    if not pwd_context.verify(user.password, db_user.hashed_password):
+    if not pwd_context.verify(user.password[:72], db_user.hashed_password):
         raise HTTPException(status_code=400, detail="Şifre hatalı!")
 
     return {"mesaj": "Giriş başarılı!", "kullanici": db_user.username, "rol": db_user.role}
@@ -174,18 +177,16 @@ async def merge_pdfs(
 async def convert_to_pdf(
     request: Request,
     files: List[UploadFile] = File(description="Dönüştürülecek resim dosyaları"),
-    username: str = Form(None),  # ✅ opsiyonel, giriş yapmışsa gelir
+    username: str = Form(None),
     db: Session = Depends(get_db)
 ):
     ip = request.client.host
-    # Kullanıcı giriş yapmış mı kontrol et
     user_id = None
     if username:
         user = db.query(models.User).filter(models.User.username == username).first()
         if user:
             user_id = user.id
-    
-    limit_kontrol(ip, db, user_id)  # user_id varsa limit yok
+    limit_kontrol(ip, db, user_id)
 
     # Sadece resim dosyalarını kabul et
     izinli_uzantilar = [".jpg", ".jpeg", ".png", ".webp"]
@@ -256,18 +257,16 @@ async def add_watermark(
     request: Request,
     file: UploadFile = File(description="Filigran eklenecek PDF"),
     text: str = Form(description="Filigran metni (örn: GİZLİ, TASLAK)"),
-    username: str = Form(None),  # ✅ opsiyonel, giriş yapmışsa gelir
+    username: str = Form(None),
     db: Session = Depends(get_db)
 ):
     ip = request.client.host
-    # Kullanıcı giriş yapmış mı kontrol et
     user_id = None
     if username:
         user = db.query(models.User).filter(models.User.username == username).first()
         if user:
             user_id = user.id
-    
-    limit_kontrol(ip, db, user_id)  # user_id varsa limit yok
+    limit_kontrol(ip, db, user_id)
 
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Sadece PDF dosyası yükleyebilirsiniz!")
@@ -334,90 +333,70 @@ async def add_watermark(
         media_type="application/pdf"
     )
 
-
-
 @app.post("/convert-office")
 async def convert_office(
     request: Request,
-    file: UploadFile = File(...),
-    username: str = Form(None),
+    file: UploadFile = File(description="Word veya PowerPoint dosyası"),
+    username: str = Form(None),  # ✅ opsiyonel, giriş yapmışsa gelir
     db: Session = Depends(get_db)
 ):
-    # Kullanıcıyı bul ve limit kontrolü yap (Senin önceki kodunla uyumlu)
     ip = request.client.host
+    # Kullanıcı giriş yapmış mı kontrol et
     user_id = None
     if username:
         user = db.query(models.User).filter(models.User.username == username).first()
         if user:
             user_id = user.id
     
-    # Oran limitini kontrol et (Daha önce yazdığımız fonksiyon)
-    limit_kontrol(ip, db, user_id) 
-
-    # 1. Dosyayı geçici olarak uploads klasörüne kaydet
-    ext = os.path.splitext(file.filename)[1].lower()
-    temp_name = f"temp_{uuid.uuid4()}{ext}"
-    temp_path = os.path.join("uploads", temp_name)
+    limit_kontrol(ip, db, user_id)  # user_id varsa limit yok
     
-    with open(temp_path, "wb") as f:
-        f.write(await file.read())
+    uzanti = os.path.splitext(file.filename)[1].lower()
+    if uzanti not in [".docx", ".pptx", ".doc", ".ppt"]:
+        raise HTTPException(
+            status_code=400,
+            detail="Sadece .docx, .pptx, .doc, .ppt kabul edilir!"
+        )
 
-        try: # <--- TRY BLOĞU BURADAN BAŞLIYOR
-        # 2. LibreOffice (soffice) Yolu
-            soffice_path = os.path.join(os.getcwd(), "libreoffice", "program", "soffice")
-            
-            command = [
-                soffice_path,
-                "--headless", 
-                "--convert-to", "pdf", 
-                "--outdir", "uploads", 
-                temp_path
-            ]
-            print(f"Mevcut dizin: {os.getcwd()}")
-            print(f"Dizin içeriği: {os.listdir('.')}")
-            # Dönüştürmeyi başlat
-            subprocess.run(command, check=True)
+    os.makedirs("uploads", exist_ok=True)
 
-            # 3. PDF yolunu belirle
-            output_filename = temp_name.replace(ext, ".pdf")
-            output_path = os.path.join("uploads", output_filename)
+    try:
+        icerik = await file.read()
+        temp_input = os.path.abspath(f"uploads/temp_{uuid.uuid4()}{uzanti}")
 
-            # Orijinal dosyayı hemen sil
-            if os.path.exists(temp_path): 
-                os.remove(temp_path)
+        with open(temp_input, "wb") as f:
+            f.write(icerik)
 
-            # 4. Veritabanına kaydet
-            new_action = models.UserAction(
-                action_type="convert-office",
-                ip_address=ip,
-                file_name=output_filename,
-                status="success",
-                user_id=user_id
-            )
-            db.add(new_action)
-            db.commit()
+        output_filename = f"{uuid.uuid4()}_office.pdf"
+        output_path = os.path.abspath(f"uploads/{output_filename}")
 
-            return FileResponse(path=output_path, filename="donusturulmus.pdf")
+        # docx2pdf ile dönüştür
+        from docx2pdf import convert
+        convert(temp_input, output_path)
 
-        except Exception as e:
-            # Hata olursa temizlik yap
-            if os.path.exists(temp_path): 
-                os.remove(temp_path)
-            print(f"Dönüştürme Hatası: {str(e)}") # Loglara bakman için
-            raise HTTPException(status_code=500, detail=f"Dönüştürme hatası: {str(e)}")
+        # Geçici dosyayı sil
+        if os.path.exists(temp_input):
+            os.remove(temp_input)
 
-    # 4. Veritabanına kaydet
-    new_action = models.UserAction(
-        action_type="convert-office",
-        ip_address=ip,
+        if not os.path.exists(output_path):
+            raise Exception("PDF oluşturulamadı!")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hata: {str(e)}")
+
+    yeni_islem = models.Operation(
+        operation_type="convert-office",
+        ip_address=request.client.host,
         file_name=output_filename,
-        status="success",
-        user_id=user_id
+        status="success"
     )
-    db.add(new_action)
+    db.add(yeni_islem)
     db.commit()
 
-    return FileResponse(path=output_path, filename="donusturulmus.pdf")
+    return FileResponse(
+        path=output_path,
+        filename="donusturulmus.pdf",
+        media_type="application/pdf"
+    )
 
 # kullanıcılar 
 @app.get("/admin/users", response_model=List[schemas.UserResponse])
@@ -498,4 +477,3 @@ def kullanici_sil(kullanici_id: int, db: Session = Depends(get_db)):
     db.delete(kullanici)
     db.commit()
     return {"mesaj": f"{kullanici.username} silindi!"}
-

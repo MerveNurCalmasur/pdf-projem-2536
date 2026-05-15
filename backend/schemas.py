@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, field_validator
 
+
 # Kullanıcı kayıt olurken (Sign Up) hangi bilgileri göndermek zorunda?
 class UserCreate(BaseModel):
     username: str

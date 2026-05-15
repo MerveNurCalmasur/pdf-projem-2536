@@ -8,8 +8,8 @@
         body { font-family: Arial; background: #f0f2f5; }
         
         .header {
-            background: #7ae2ee;
-            color: rgb(249, 20, 20);
+            background: #481a1f;
+            color: white;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
@@ -54,26 +54,26 @@
             font-size: 12px;
             font-weight: bold;
         }
-        .badge-merge { background: #cce5ff; color: #821155; }
-        .badge-convert { background: #d4edda; color: #7366e8; }
-        .badge-watermark { background: #fff3cd; color: #0a0485; }
+        .badge-merge { background: #cce5ff; color: #004085; }
+        .badge-convert { background: #d4edda; color: #155724; }
+        .badge-watermark { background: #fff3cd; color: #856404; }
 
         /* Kullanıcı Tablosu */
         .sil-btn {
-            background: #26bfbc;
+            background: #dc3545;
             color: white;
             border: none;
             padding: 5px 12px;
             border-radius: 5px;
             cursor: pointer;
         }
-        .sil-btn:hover { background: #94c823; }
+        .sil-btn:hover { background: #c82333; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>🛡️ Admin Paneli</h1>
+    <h1>🛡️Admin Paneli</h1>
     <span>PDF Projesi</span>
 </div>
 
@@ -145,7 +145,7 @@
 </div>
 
 <script>
-    const API = "http://127.0.0.1:8000";
+    const API = "https://pdf-backend-4kna.onrender.com";
 
     // İstatistikleri yükle
     async function istatistikYukle() {
@@ -182,7 +182,7 @@
                 </td>
                 <td>${islem.ip_adresi || '-'}</td>
                 <td style="font-size:12px">${islem.dosya_adi || '-'}</td>
-                <td> ${islem.durum}</td>
+                <td>${islem.durum}</td>
                 <td>${islem.tarih || '-'}</td>
             </tr>
         `).join('');
@@ -241,6 +241,5 @@
         islemleriYukle();
     }, 30000);
 </script>
-
 </body>
 </html>
